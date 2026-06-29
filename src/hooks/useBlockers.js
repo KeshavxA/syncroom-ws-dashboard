@@ -1,34 +1,34 @@
-import { useState, useEffect } from 'react';
-import { parseMessage } from '../utils/messageParser';
+import { useState, useEffect, useCallback } from 'react';
+import { parseBlocker } from '../utils/messageParser';
 
-export const useBlockers = (subscribe, isConnected) => {
+export function useBlockers({ subscribe, meetingId }) {
   const [blockers, setBlockers] = useState([]);
 
   useEffect(() => {
-    if (!isConnected) return;
+    if (!meetingId || !subscribe) return;
 
-    const subscription = subscribe('/topic/blockers', (message) => {
-      const data = parseMessage(message);
-      if (data) {
-        // Expecting { id, text, author, timestamp, resolved }
-        setBlockers(prev => {
-          if (data.resolved) {
-            return prev.filter(b => b.id !== data.id);
-          }
-          // Avoid duplicates
-          const exists = prev.find(b => b.id === data.id);
-          if (exists) {
-              return prev.map(b => b.id === data.id ? data : b);
-          }
-          return [data, ...prev].slice(0, 50); // Keep last 50 blockers
-        });
-      }
+    // cap at 50 so we don't eat memory on long meetings
+    const unsubscribe = subscribe(`/topic/meetings/${meetingId}/blockers`, (rawMsg) => {
+      const blocker = parseBlocker(rawMsg);
+      if (!blocker) return;
+
+      setBlockers((prev) => {
+        const newBlockers = [blocker, ...prev];
+        if (newBlockers.length > 50) {
+          return newBlockers.slice(0, 50);
+        }
+        return newBlockers;
+      });
     });
 
     return () => {
-      if (subscription) subscription.unsubscribe();
+      if (unsubscribe) unsubscribe();
     };
-  }, [subscribe, isConnected]);
+  }, [subscribe, meetingId]);
 
-  return blockers;
-};
+  const dismissBlocker = useCallback((blockerId) => {
+    setBlockers((prev) => prev.filter((b) => b.blockerId !== blockerId));
+  }, []);
+
+  return { blockers, dismissBlocker };
+}

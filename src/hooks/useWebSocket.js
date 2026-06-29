@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import websocketService from '../services/websocketService';
+import { websocketService } from '../services/websocketService';
 
-export const useWebSocket = () => {
+export function useWebSocket() {
   const [status, setStatus] = useState('connecting');
 
   useEffect(() => {
+    // connect with our state setter callback
     websocketService.connect(setStatus);
 
     return () => {
@@ -21,4 +22,4 @@ export const useWebSocket = () => {
   }, []);
 
   return { status, subscribe, publish };
-};
+}

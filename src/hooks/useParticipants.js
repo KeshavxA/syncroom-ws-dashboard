@@ -1,7 +1,7 @@
-import { useEffect, useReducer, useMemo } from 'react';
+import { useReducer, useEffect, useMemo } from 'react';
 import { parseParticipantUpdate } from '../utils/messageParser';
 
-const participantReducer = (state, action) => {
+function participantsReducer(state, action) {
   switch (action.type) {
     case 'UPDATE': {
       const newState = new Map(state);
@@ -18,31 +18,30 @@ const participantReducer = (state, action) => {
     default:
       return state;
   }
-};
+}
 
-export const useParticipants = ({ subscribe, meetingId }) => {
-  const [participants, dispatch] = useReducer(participantReducer, new Map());
+export function useParticipants({ subscribe, meetingId }) {
+  const [participants, dispatch] = useReducer(participantsReducer, new Map());
 
   useEffect(() => {
-    if (!meetingId) return;
+    if (!meetingId || !subscribe) return;
 
     const unsubscribe = subscribe(`/topic/meetings/${meetingId}/participants`, (rawMsg) => {
-      const parsed = parseParticipantUpdate(rawMsg);
-      if (!parsed) return;
+      const update = parseParticipantUpdate(rawMsg);
+      if (!update) return;
 
-      if (parsed.status === 'left') {
-        dispatch({ type: 'REMOVE', payload: parsed });
+      if (update.status === 'left') {
+        dispatch({ type: 'REMOVE', payload: update });
       } else {
-        dispatch({ type: 'UPDATE', payload: parsed });
+        dispatch({ type: 'UPDATE', payload: update });
       }
     });
 
     return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
+      if (unsubscribe) unsubscribe();
+      dispatch({ type: 'RESET' });
     };
   }, [subscribe, meetingId]);
 
   return useMemo(() => Array.from(participants.values()), [participants]);
-};
+}
