@@ -1,37 +1,75 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
-export const BlockerFeed = ({ blockers }) => {
+const BlockerItem = React.memo(({ blocker, dismissBlocker }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const { blockerId, reportedBy, description, severity } = blocker;
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(true), 50);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const borderColors = {
+    high: 'border-l-red-500',
+    medium: 'border-l-yellow-500',
+    low: 'border-l-blue-500'
+  };
+
+  const badgeColors = {
+    high: 'bg-red-100 text-red-800',
+    medium: 'bg-yellow-100 text-yellow-800',
+    low: 'bg-blue-100 text-blue-800'
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-red-200 p-4 h-full flex flex-col">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-red-600 flex items-center gap-2">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-          Active Blockers
-        </h3>
-        <span className="bg-red-100 text-red-700 text-xs font-bold px-2.5 py-0.5 rounded-full">
-          {blockers.length}
+    <div 
+      className={`relative p-4 mb-3 bg-white border border-gray-200 shadow-sm rounded-lg border-l-4 ${borderColors[severity]} transition-all duration-300 transform ${isVisible ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'}`}
+    >
+      <button 
+        onClick={() => dismissBlocker(blockerId)}
+        className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition-colors"
+        aria-label="Dismiss"
+      >
+        &times;
+      </button>
+      <div className="flex items-start justify-between mb-1 pr-6">
+        <span className="font-semibold text-sm text-gray-800">{reportedBy}</span>
+        <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${badgeColors[severity]}`}>
+          {severity}
         </span>
       </div>
-      
-      <div className="flex-1 overflow-y-auto pr-2 space-y-3">
-        {blockers.length === 0 ? (
-          <div className="h-full flex items-center justify-center text-sm text-gray-500 italic">
-            No blockers reported!
-          </div>
-        ) : (
-          blockers.map(blocker => (
-            <div key={blocker.id} className="border-l-4 border-red-500 bg-red-50 p-3 rounded-r-md animate-slide-in">
-              <p className="text-sm text-gray-800 mb-1">{blocker.text}</p>
-              <div className="flex justify-between items-center text-xs text-gray-500">
-                <span>By {blocker.author}</span>
-                <span>{new Date(blocker.timestamp).toLocaleTimeString()}</span>
-              </div>
-            </div>
-          ))
-        )}
+      <p className="text-gray-600 text-sm mt-1">{description}</p>
+    </div>
+  );
+});
+
+BlockerItem.displayName = 'BlockerItem';
+
+export const BlockerFeed = React.memo(({ blockers, dismissBlocker }) => {
+  if (!blockers || blockers.length === 0) {
+    return (
+      <div className="p-8 text-center text-gray-500 text-sm border-2 border-dashed border-gray-200 rounded-xl bg-gray-50/50">
+        No blockers reported — great meeting!
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-gray-50/50 rounded-xl p-4 overflow-y-auto h-full flex flex-col gap-1">
+      <h3 className="font-semibold text-gray-700 text-sm mb-2 shrink-0">
+        Active Blockers ({blockers.length})
+      </h3>
+      <div className="overflow-y-auto pr-1 pb-2">
+        {blockers.map(b => (
+          <BlockerItem 
+            key={b.blockerId} 
+            blocker={b} 
+            dismissBlocker={dismissBlocker} 
+          />
+        ))}
       </div>
     </div>
   );
-};
+});
+
+BlockerFeed.displayName = 'BlockerFeed';

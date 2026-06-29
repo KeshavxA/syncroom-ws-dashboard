@@ -1,15 +1,14 @@
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
-// handles STOMP over SockJS — keeps subscriptions alive across reconnects
 class WebSocketService {
   constructor() {
     this.client = null;
     this.status = 'disconnected';
     this.reconnectAttempts = 0;
     this.onStatusChange = null;
-    this.activeSubscriptions = new Map(); // topic -> callback
-    this.stompSubscriptions = new Map(); // topic -> stomp subscription object
+    this.activeSubscriptions = new Map();
+    this.stompSubscriptions = new Map();
   }
 
   _setStatus(newStatus) {
@@ -22,7 +21,7 @@ class WebSocketService {
   }
 
   _getReconnectDelay() {
-    // start at 2000ms, double each attempt, cap at 30000ms
+
     const delay = 2000 * Math.pow(2, this.reconnectAttempts);
     return Math.min(delay, 30000);
   }
@@ -36,7 +35,7 @@ class WebSocketService {
     if (onStatusChange) {
       this.onStatusChange = onStatusChange;
     }
-    
+
     this._setStatus(this.reconnectAttempts > 0 ? 'reconnecting' : 'connecting');
 
     const wsUrl = import.meta.env.VITE_WS_URL ?? 'ws://localhost:8080/ws';
@@ -49,8 +48,7 @@ class WebSocketService {
       onConnect: () => {
         this.reconnectAttempts = 0;
         this._setStatus('connected');
-        
-        // Restore active subscriptions
+
         for (const [topic, callback] of this.activeSubscriptions.entries()) {
           this._subscribeToStomp(topic, callback);
         }
@@ -89,7 +87,7 @@ class WebSocketService {
 
   _subscribeToStomp(topic, callback) {
     if (!this.client || !this.client.connected) return;
-    
+
     if (this.stompSubscriptions.has(topic)) {
       this.stompSubscriptions.get(topic).unsubscribe();
     }

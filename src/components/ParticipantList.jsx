@@ -2,11 +2,10 @@ import React, { useMemo } from 'react';
 
 const ParticipantRow = React.memo(({ participant }) => {
   const { name, status, joinedAt } = participant;
-  
+
   const initials = name ? name.charAt(0).toUpperCase() : '?';
   const isJoined = status === 'joined';
 
-  // "joined X seconds ago" — compute from participant.joinedAt if present
   const timeText = useMemo(() => {
     if (!joinedAt) return '';
     const diff = Math.floor((Date.now() - new Date(joinedAt).getTime()) / 1000);
@@ -22,7 +21,7 @@ const ParticipantRow = React.memo(({ participant }) => {
         </div>
         <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${isJoined ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
       </div>
-      
+
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-gray-900 truncate">
           {name}
