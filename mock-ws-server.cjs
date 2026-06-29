@@ -1,10 +1,10 @@
 const { WebSocketServer } = require('ws');
 
-const wss = new WebSocketServer({ port: 8080, path: '/ws' });
+const wss = new WebSocketServer({ port: 8085, path: '/ws' });
 
 const NULL_CHAR = '\0';
 
-console.log('Mock WS (STOMP) server running on ws://localhost:8080/ws');
+console.log('Mock WS (STOMP) server running on ws://localhost:8085/ws');
 
 wss.on('connection', (ws) => {
   console.log('Client connected');
