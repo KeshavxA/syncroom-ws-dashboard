@@ -1,37 +1,48 @@
-import { useState, useEffect } from 'react';
-import { parseMessage } from '../utils/messageParser';
+import { useEffect, useReducer, useMemo } from 'react';
+import { parseParticipantUpdate } from '../utils/messageParser';
 
-export const useParticipants = (subscribe, isConnected) => {
-  const [participants, setParticipants] = useState([]);
+const participantReducer = (state, action) => {
+  switch (action.type) {
+    case 'UPDATE': {
+      const newState = new Map(state);
+      newState.set(action.payload.userId, action.payload);
+      return newState;
+    }
+    case 'REMOVE': {
+      const newState = new Map(state);
+      newState.delete(action.payload.userId);
+      return newState;
+    }
+    case 'RESET':
+      return new Map();
+    default:
+      return state;
+  }
+};
+
+export const useParticipants = ({ subscribe, meetingId }) => {
+  const [participants, dispatch] = useReducer(participantReducer, new Map());
 
   useEffect(() => {
-    if (!isConnected) return;
+    if (!meetingId) return;
 
-    const subscription = subscribe('/topic/participants', (message) => {
-      const data = parseMessage(message);
-      if (data) {
-        // Expecting { type: 'JOIN' | 'LEAVE' | 'SYNC', user: { id, name, avatar, status } }
-        setParticipants(prev => {
-          if (data.type === 'SYNC') return data.users;
-          if (data.type === 'JOIN') {
-            const exists = prev.find(p => p.id === data.user.id);
-            return exists ? prev : [...prev, data.user];
-          }
-          if (data.type === 'LEAVE') {
-            return prev.filter(p => p.id !== data.user.id);
-          }
-          if (data.type === 'UPDATE') {
-            return prev.map(p => p.id === data.user.id ? { ...p, ...data.user } : p);
-          }
-          return prev;
-        });
+    const unsubscribe = subscribe(`/topic/meetings/${meetingId}/participants`, (rawMsg) => {
+      const parsed = parseParticipantUpdate(rawMsg);
+      if (!parsed) return;
+
+      if (parsed.status === 'left') {
+        dispatch({ type: 'REMOVE', payload: parsed });
+      } else {
+        dispatch({ type: 'UPDATE', payload: parsed });
       }
     });
 
     return () => {
-      if (subscription) subscription.unsubscribe();
+      if (unsubscribe) {
+        unsubscribe();
+      }
     };
-  }, [subscribe, isConnected]);
+  }, [subscribe, meetingId]);
 
-  return participants;
+  return useMemo(() => Array.from(participants.values()), [participants]);
 };
