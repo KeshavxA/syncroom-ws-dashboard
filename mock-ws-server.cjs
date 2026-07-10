@@ -8,7 +8,7 @@ console.log('Mock WS (STOMP) server running on ws://localhost:8085/ws');
 
 wss.on('connection', (ws) => {
   console.log('Client connected');
-
+c 
   ws.subscriptions = new Map();
 
   ws.on('message', (message) => {
@@ -97,7 +97,8 @@ setInterval(() => {
     name: name,
     status: status,
     meetingId: 'm-1',
-    joinedAt: new Date().toISOString()
+    joinedAt: new Date().toISOString(),
+    hasHandRaised: Math.random() > 0.8
   });
 }, 2000);
 

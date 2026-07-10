@@ -1,16 +1,73 @@
-# React + Vite
+# SyncRoom WS Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A real-time meeting dashboard built to display live participants and blocker notifications across concurrent sessions. It connects to a WebSocket backend via STOMP, automatically handling exponential backoff reconnections, topic subscriptions, and high-performance UI updates.
 
-Currently, two official plugins are available:
+## Tech Stack
+- **Frontend Framework**: React 18 & Vite
+- **Styling**: Tailwind CSS
+- **WebSockets**: `@stomp/stompjs` + `sockjs-client`
+- **State Management**: React Hooks (useReducer, custom hooks, React.memo)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Getting Started
 
-## React Compiler
+1. **Install Dependencies**
+   ```bash
+   npm install
+   ```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+2. **Start the Mock WebSocket Server**
+   In one terminal window, spin up the local mock server to simulate the STOMP endpoint:
+   ```bash
+   npm run mock-ws
+   ```
 
-## Expanding the Oxlint configuration
+3. **Start the Dev Server**
+   In a second terminal window, run the Vite development server:
+   ```bash
+   npm run dev
+   ```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## Environment Variables
+
+By default, the mock server runs on `localhost:8085`. You should create a `.env.local` file in the root of your project:
+
+```env
+# .env.local
+VITE_WS_URL=ws://localhost:8085/ws
+```
+
+## Folder Structure
+
+```
+src/
+├── components/           # UI Components (MeetingCard, BlockerFeed, etc.)
+│   ├── ConnectionBanner.jsx  # Sticky top status bar
+│   ├── ErrorBoundary.jsx     # Catches WS-related render crashes
+│   ├── ParticipantList.jsx   # Live presence indicators
+│   └── ...
+├── hooks/                # Custom React hooks
+│   ├── useBlockers.js        # Blocker notifications queue state
+│   ├── useParticipants.js    # Participant presence derived state
+│   └── useWebSocket.js       # WebSocket global connection state
+├── services/
+│   └── websocketService.js   # Singleton STOMP client, reconnect logic
+├── utils/
+│   └── messageParser.js      # Safe parsing of incoming WS payloads
+├── App.jsx               # Main layout
+└── main.jsx
+```
+
+## Connecting a Real Spring Boot STOMP Backend
+
+To point this dashboard to a real Java/Spring Boot backend instead of the mock server:
+
+1. In your `.env.local`, update the `VITE_WS_URL` to point to your Spring endpoint (e.g., `http://localhost:8080/ws-endpoint`). 
+   *Note: If you use `http(s)://`, the service will automatically fallback to using SockJS.*
+2. Ensure your Spring backend allows CORS for your frontend's host (`http://localhost:5173`).
+3. Ensure your Spring backend configures a simple broker matching the topics: `/topic/meetings/...` and handles the `/app/...` app destinations.
+
+## Known Limitations / TODO
+
+- **Token Auth**: Authentication/JWT headers are not currently passed into the STOMP `CONNECT` frame.
+- **Unsubscribe on meeting change**: The frontend doesn't aggressively clean up subscriptions if the meeting list is swapped completely (though it does clean up on component unmount).
+- **Scale**: The UI currently maps out 3 hardcoded meetings. Real data needs a REST fetch on initial load to seed the `INITIAL_MEETINGS` list.

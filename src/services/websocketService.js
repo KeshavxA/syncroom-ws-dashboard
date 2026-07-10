@@ -21,11 +21,14 @@ class WebSocketService {
   }
 
   _getReconnectDelay() {
-
     const delay = 2000 * Math.pow(2, this.reconnectAttempts);
     return Math.min(delay, 30000);
   }
 
+  /**
+   * Initiates the WebSocket connection.
+   * @param {Function} onStatusChange - Callback when connection status changes
+   */
   connect(onStatusChange) {
     if (this.status === 'connected' || this.status === 'connecting') {
       if (onStatusChange) this.onStatusChange = onStatusChange;
@@ -64,8 +67,7 @@ class WebSocketService {
         }
       },
       onStompError: (frame) => {
-        console.error('Broker reported error: ' + frame.headers['message']);
-        console.error('Additional details: ' + frame.body);
+        console.error('Broker threw an error: ' + frame.headers['message']);
         this._setStatus('error');
       }
     });
@@ -92,12 +94,16 @@ class WebSocketService {
       this.stompSubscriptions.get(topic).unsubscribe();
     }
 
-    const sub = this.client.subscribe(topic, (message) => {
-      callback(message.body);
+    const sub = this.client.subscribe(topic, (msg) => {
+      callback(msg.body);
     });
     this.stompSubscriptions.set(topic, sub);
   }
 
+  /**
+   * Unsubscribes from a specific STOMP topic.
+   * @param {string} topic 
+   */
   unsubscribe(topic) {
     if (this.stompSubscriptions.has(topic)) {
       this.stompSubscriptions.get(topic).unsubscribe();
@@ -106,6 +112,12 @@ class WebSocketService {
     this.activeSubscriptions.delete(topic);
   }
 
+  /**
+   * Subscribes to a topic. If connected, delegates to STOMP immediately.
+   * @param {string} topic 
+   * @param {Function} callback 
+   * @returns {Function} cleanup function to unsubscribe
+   */
   subscribe(topic, callback) {
     this.activeSubscriptions.set(topic, callback);
     if (this.status === 'connected') {
@@ -114,6 +126,11 @@ class WebSocketService {
     return () => this.unsubscribe(topic);
   }
 
+  /**
+   * Publishes a message to a topic.
+   * @param {string} topic 
+   * @param {any} body 
+   */
   publish(topic, body) {
     if (this.client && this.client.connected) {
       this.client.publish({
@@ -121,7 +138,7 @@ class WebSocketService {
         body: typeof body === 'string' ? body : JSON.stringify(body)
       });
     } else {
-      console.warn(`Cannot publish to ${topic}, client not connected.`);
+      console.warn(`WS not connected, couldn't publish to ${topic}`);
     }
   }
 

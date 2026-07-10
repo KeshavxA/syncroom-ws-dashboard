@@ -22,20 +22,26 @@ const ParticipantRow = React.memo(({ participant }) => {
         <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${isJoined ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
       </div>
 
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-gray-900 truncate">
-          {name}
-        </p>
-        <p className="text-xs text-gray-500 truncate capitalize">
-          {status} {timeText && `• ${timeText}`}
-        </p>
+      <div className="flex-1 min-w-0 flex justify-between items-center pr-2">
+        <div className="min-w-0">
+          <p className="text-sm font-medium text-gray-900 truncate">
+            {name}
+          </p>
+          <p className="text-xs text-gray-500 truncate capitalize">
+            {status} {timeText && `• ${timeText}`}
+          </p>
+        </div>
+        {participant.hasHandRaised && (
+          <span title="Hand raised" className="text-base leading-none animate-bounce" role="img" aria-label="raised hand">✋</span>
+        )}
       </div>
     </div>
   );
 }, (prev, next) => {
 
   return prev.participant.status === next.participant.status &&
-    prev.participant.userId === next.participant.userId;
+    prev.participant.userId === next.participant.userId &&
+    prev.participant.hasHandRaised === next.participant.hasHandRaised;
 });
 
 ParticipantRow.displayName = 'ParticipantRow';

@@ -1,4 +1,4 @@
-import { useReducer, useEffect, useMemo } from 'react';
+import { useReducer, useEffect, useMemo, useRef } from 'react';
 import { parseParticipantUpdate } from '../utils/messageParser';
 
 function participantsReducer(state, action) {
@@ -22,11 +22,16 @@ function participantsReducer(state, action) {
 
 export function useParticipants({ subscribe, meetingId }) {
   const [participants, dispatch] = useReducer(participantsReducer, new Map());
+  const isMounted = useRef(true);
 
   useEffect(() => {
+    isMounted.current = true;
     if (!meetingId || !subscribe) return;
 
     const unsubscribe = subscribe(`/topic/meetings/${meetingId}/participants`, (rawMsg) => {
+
+      if (!isMounted.current) return;
+
       const update = parseParticipantUpdate(rawMsg);
       if (!update) return;
 
@@ -38,10 +43,12 @@ export function useParticipants({ subscribe, meetingId }) {
     });
 
     return () => {
+      isMounted.current = false;
       if (unsubscribe) unsubscribe();
       dispatch({ type: 'RESET' });
     };
-  }, [subscribe, meetingId]);
+
+  }, [subscribe]);
 
   return useMemo(() => Array.from(participants.values()), [participants]);
 }
