@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 
 const BlockerItem = React.memo(({ blocker, dismissBlocker }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -49,7 +49,19 @@ const BlockerItem = React.memo(({ blocker, dismissBlocker }) => {
 BlockerItem.displayName = 'BlockerItem';
 
 export const BlockerFeed = React.memo(({ blockers, dismissBlocker }) => {
-  if (!blockers || blockers.length === 0) {
+  const sortedBlockers = useMemo(() => {
+    if (!blockers) return [];
+    
+    const severityMap = { high: 3, medium: 2, low: 1 };
+    
+    return [...blockers].sort((a, b) => {
+      const valA = severityMap[a.severity] || 0;
+      const valB = severityMap[b.severity] || 0;
+      return valB - valA;
+    });
+  }, [blockers]);
+
+  if (!sortedBlockers || sortedBlockers.length === 0) {
     return (
       <div className="p-8 text-center text-gray-500 text-sm border-2 border-dashed border-gray-200 rounded-xl bg-gray-50/50">
         No blockers reported — great meeting!
@@ -63,7 +75,7 @@ export const BlockerFeed = React.memo(({ blockers, dismissBlocker }) => {
         Active Blockers ({blockers.length})
       </h3>
       <div className="overflow-y-auto pr-1 pb-2">
-        {blockers.map(b => (
+        {sortedBlockers.map(b => (
           <BlockerItem
             key={b.blockerId}
             blocker={b}
