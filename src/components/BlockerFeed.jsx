@@ -11,21 +11,21 @@ const BlockerItem = React.memo(({ blocker, dismissBlocker }) => {
 
   const borderColors = {
     high: 'border-l-red-500',
-    medium: 'border-l-yellow-500',
-    low: 'border-l-blue-500'
+    medium: 'border-l-orange-500',
+    low: 'border-l-yellow-400'
   };
 
   const badgeColors = {
     high: 'bg-red-100 text-red-800',
-    medium: 'bg-yellow-100 text-yellow-800',
-    low: 'bg-blue-100 text-blue-800'
+    medium: 'bg-orange-100 text-orange-800',
+    low: 'bg-yellow-100 text-yellow-800'
   };
 
   return (
-    <div 
+    <div
       className={`relative p-4 mb-3 bg-white border border-gray-200 shadow-sm rounded-lg border-l-4 ${borderColors[severity]} transition-all duration-300 transform ${isVisible ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'}`}
     >
-      <button 
+      <button
         onClick={() => dismissBlocker(blockerId)}
         className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition-colors"
         aria-label="Dismiss"
@@ -41,6 +41,9 @@ const BlockerItem = React.memo(({ blocker, dismissBlocker }) => {
       <p className="text-gray-600 text-sm mt-1">{description}</p>
     </div>
   );
+}, (prev, next) => {
+
+  return prev.blocker.blockerId === next.blocker.blockerId;
 });
 
 BlockerItem.displayName = 'BlockerItem';
@@ -61,10 +64,10 @@ export const BlockerFeed = React.memo(({ blockers, dismissBlocker }) => {
       </h3>
       <div className="overflow-y-auto pr-1 pb-2">
         {blockers.map(b => (
-          <BlockerItem 
-            key={b.blockerId} 
-            blocker={b} 
-            dismissBlocker={dismissBlocker} 
+          <BlockerItem
+            key={b.blockerId}
+            blocker={b}
+            dismissBlocker={dismissBlocker}
           />
         ))}
       </div>
