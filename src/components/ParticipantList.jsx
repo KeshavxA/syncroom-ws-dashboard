@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 
 const ParticipantRow = React.memo(({ participant }) => {
   const { name, status, joinedAt } = participant;
@@ -32,11 +32,29 @@ const ParticipantRow = React.memo(({ participant }) => {
       </div>
     </div>
   );
+}, (prev, next) => {
+
+  return prev.participant.status === next.participant.status &&
+    prev.participant.userId === next.participant.userId;
 });
 
 ParticipantRow.displayName = 'ParticipantRow';
 
 export const ParticipantList = React.memo(({ participants }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredParticipants = useMemo(() => {
+    if (!participants) return [];
+    if (!searchQuery.trim()) return participants;
+    
+    const query = searchQuery.toLowerCase();
+    return participants.filter(p => {
+      const nameMatch = p.name?.toLowerCase().includes(query);
+      const roleMatch = p.role?.toLowerCase().includes(query);
+      return nameMatch || roleMatch;
+    });
+  }, [participants, searchQuery]);
+
   if (!participants || participants.length === 0) {
     return (
       <div className="p-8 text-center text-gray-500 text-sm border-2 border-dashed border-gray-200 rounded-xl">
@@ -47,15 +65,28 @@ export const ParticipantList = React.memo(({ participants }) => {
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col max-h-96">
-      <div className="p-4 border-b border-gray-100 bg-gray-50/50">
+      <div className="p-4 border-b border-gray-100 bg-gray-50/50 flex flex-col gap-3">
         <h3 className="font-semibold text-gray-700 text-sm">
           Live Participants ({participants.length})
         </h3>
+        <input
+          type="text"
+          placeholder="Search by name or role..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+        />
       </div>
       <div className="overflow-y-auto p-2">
-        {participants.map(p => (
-          <ParticipantRow key={p.userId} participant={p} />
-        ))}
+        {filteredParticipants.length === 0 ? (
+          <div className="p-4 text-center text-gray-500 text-sm">
+            No participants found matching "{searchQuery}"
+          </div>
+        ) : (
+          filteredParticipants.map(p => (
+            <ParticipantRow key={p.userId} participant={p} />
+          ))
+        )}
       </div>
     </div>
   );
