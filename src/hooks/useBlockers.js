@@ -30,9 +30,11 @@ export function useBlockers({ subscribe, meetingId }) {
     };
   }, [subscribe, meetingId]);
 
-  const dismissBlocker = useCallback((blockerId) => {
-    setBlockers((prev) => prev.filter((b) => b.blockerId !== blockerId));
+  const resolveBlocker = useCallback((blockerId) => {
+    setBlockers((prev) => prev.map((b) => 
+      b.blockerId === blockerId ? { ...b, isResolved: true } : b
+    ));
   }, []);
 
-  return { blockers, dismissBlocker };
+  return { blockers, resolveBlocker };
 }

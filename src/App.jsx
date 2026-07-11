@@ -22,7 +22,7 @@ export default function App() {
   const selectedMeeting = INITIAL_MEETINGS.find(m => m.meetingId === selectedMeetingId) || INITIAL_MEETINGS[0];
 
   const participants = useParticipants({ subscribe, meetingId: selectedMeetingId });
-  const { blockers, dismissBlocker } = useBlockers({ subscribe, meetingId: selectedMeetingId });
+  const { blockers, resolveBlocker } = useBlockers({ subscribe, meetingId: selectedMeetingId });
 
   const simulateBlocker = () => {
     publish(`/app/blockers`, {
@@ -64,7 +64,7 @@ export default function App() {
                   <ParticipantList participants={participants} />
                 </div>
                 <div className="w-1/2 flex flex-col h-full overflow-hidden">
-                  <BlockerFeed blockers={blockers} dismissBlocker={dismissBlocker} />
+                  <BlockerFeed blockers={blockers} resolveBlocker={resolveBlocker} />
                 </div>
               </div>
             </div>
