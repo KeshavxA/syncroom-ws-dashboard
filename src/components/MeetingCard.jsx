@@ -37,7 +37,7 @@ const LiveTimer = React.memo(({ startTime }) => {
   }, [startTime]);
 
   return (
-    <div className="flex items-center gap-1.5 text-[10px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-md border border-red-200 shadow-sm">
+    <div className="flex items-center gap-1.5 text-[10px] font-bold text-red-600 bg-red-50 dark:bg-red-900/30 px-2 py-0.5 rounded-md border border-red-200 dark:border-red-800 shadow-sm transition-colors duration-300">
       <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></div>
       {elapsed}
     </div>
@@ -74,9 +74,9 @@ export const MeetingCard = React.memo(({ meeting, isSelected, onSelect, subscrib
   const { title, status, participantCount, startTime } = localMeeting;
 
   const statusColors = {
-    live: 'bg-green-100 text-green-800',
-    upcoming: 'bg-blue-100 text-blue-800',
-    ended: 'bg-gray-100 text-gray-800'
+    live: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+    upcoming: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+    ended: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300'
   };
 
   const statusLabel = status || 'upcoming';
@@ -84,19 +84,19 @@ export const MeetingCard = React.memo(({ meeting, isSelected, onSelect, subscrib
   return (
     <div 
       onClick={() => onSelect(localMeeting.meetingId)}
-      className={`p-4 mb-3 rounded-xl cursor-pointer transition-all duration-200 border-2 ${isSelected ? 'border-indigo-500 shadow-md bg-indigo-50/10' : 'border-transparent bg-white shadow-sm hover:border-gray-300'}`}
+      className={`p-4 mb-3 rounded-xl cursor-pointer transition-all duration-200 border-2 ${isSelected ? 'border-indigo-500 shadow-md bg-indigo-50/10 dark:bg-indigo-900/20' : 'border-transparent dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm hover:border-gray-300 dark:hover:border-gray-500'}`}
     >
       <div className="flex justify-between items-start mb-2 gap-2">
         <div className="flex flex-col gap-1.5">
-          <h4 className="font-bold text-gray-800 text-base leading-tight">{title}</h4>
+          <h4 className="font-bold text-gray-800 dark:text-gray-100 text-base leading-tight">{title}</h4>
           {statusLabel === 'live' && <LiveTimer startTime={startTime} />}
         </div>
         <span className={`shrink-0 text-xs font-semibold px-2 py-1 rounded-full capitalize ${statusColors[statusLabel] || statusColors.ended}`}>
           {statusLabel}
         </span>
       </div>
-      <div className="flex justify-between items-center text-xs text-gray-500 mt-4">
-        <div className={`flex items-center gap-1.5 font-bold text-[11px] px-2.5 py-1 rounded-full shadow-sm border ${participantCount > 0 ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-gray-50 text-gray-500 border-gray-200'}`}>
+      <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 mt-4">
+        <div className={`flex items-center gap-1.5 font-bold text-[11px] px-2.5 py-1 rounded-full shadow-sm border transition-colors duration-300 ${participantCount > 0 ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-700/50' : 'bg-gray-50 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700'}`}>
           <svg className="w-3.5 h-3.5 opacity-75" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
           {participantCount || 0}
         </div>

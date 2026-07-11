@@ -35,13 +35,13 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 font-sans text-gray-900">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 font-sans text-gray-900 dark:text-gray-100 transition-colors duration-300">
       <Toaster position="bottom-right" toastOptions={{ duration: 3000 }} />
       <ConnectionBanner status={status} />
 
       <div className="flex max-w-7xl mx-auto pt-8 px-4 gap-6 h-screen pb-6">
         <div className="w-72 flex-shrink-0 flex flex-col overflow-y-auto pr-2 pb-16">
-          <h2 className="font-bold text-xl mb-4 text-gray-800">Meetings</h2>
+          <h2 className="font-bold text-xl mb-4 text-gray-800 dark:text-gray-200">Meetings</h2>
           {INITIAL_MEETINGS.map(meeting => (
             <MeetingCard
               key={meeting.meetingId}
@@ -55,11 +55,11 @@ export default function App() {
 
         <div className="flex-1 flex flex-col gap-6 overflow-hidden pb-12">
           <ErrorBoundary>
-            <div className="flex-1 flex flex-col bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="p-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center shrink-0">
-                <h1 className="font-bold text-lg text-gray-800">{selectedMeeting.title} — Dashboard</h1>
+            <div className="flex-1 flex flex-col bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors duration-300">
+              <div className="p-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 flex justify-between items-center shrink-0 transition-colors duration-300">
+                <h1 className="font-bold text-lg text-gray-800 dark:text-gray-100">{selectedMeeting.title} — Dashboard</h1>
               </div>
-              <div className="flex-1 flex p-6 gap-6 overflow-hidden bg-gray-50/30">
+              <div className="flex-1 flex p-6 gap-6 overflow-hidden bg-gray-50/30 dark:bg-black/20 transition-colors duration-300">
                 <div className="w-1/2 flex flex-col h-full overflow-hidden">
                   <ParticipantList participants={participants} />
                 </div>

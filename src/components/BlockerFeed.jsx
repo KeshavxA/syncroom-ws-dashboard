@@ -23,8 +23,8 @@ const BlockerItem = React.memo(({ blocker, resolveBlocker }) => {
 
   return (
     <div
-      className={`relative p-4 mb-3 bg-white border border-gray-200 shadow-sm rounded-lg border-l-4 transition-all duration-300 transform ${
-        isResolved ? 'border-gray-300' : borderColors[severity]
+      className={`relative p-4 mb-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm rounded-lg border-l-4 transition-all duration-300 transform ${
+        isResolved ? 'border-gray-300 dark:border-gray-600 opacity-60' : borderColors[severity]
       } ${isVisible ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'}`}
     >
       <div className="flex items-start justify-between mb-1 pr-2">
@@ -34,16 +34,16 @@ const BlockerItem = React.memo(({ blocker, resolveBlocker }) => {
             checked={isResolved || false}
             onChange={() => resolveBlocker(blockerId)} 
             disabled={isResolved}
-            className="w-4 h-4 text-indigo-600 border-gray-300 rounded cursor-pointer focus:ring-indigo-500 disabled:opacity-50"
+            className="w-4 h-4 text-indigo-600 dark:text-indigo-400 border-gray-300 dark:border-gray-600 rounded cursor-pointer focus:ring-indigo-500 disabled:opacity-50 transition-colors duration-300"
             title={isResolved ? 'Resolved' : 'Mark as resolved'}
           />
-          <span className={`font-semibold text-sm ${isResolved ? 'text-gray-500 line-through' : 'text-gray-800'}`}>{reportedBy}</span>
+          <span className={`font-semibold text-sm transition-colors duration-300 ${isResolved ? 'text-gray-500 dark:text-gray-400 line-through' : 'text-gray-800 dark:text-gray-100'}`}>{reportedBy}</span>
         </div>
-        <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${isResolved ? 'bg-gray-100 text-gray-500' : badgeColors[severity]}`}>
+        <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full transition-colors duration-300 ${isResolved ? 'bg-gray-100 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400' : badgeColors[severity]}`}>
           {severity}
         </span>
       </div>
-      <p className={`text-sm mt-1 ${isResolved ? 'text-gray-400' : 'text-gray-600'}`}>{description}</p>
+      <p className={`text-sm mt-1 transition-colors duration-300 ${isResolved ? 'text-gray-400 dark:text-gray-500' : 'text-gray-600 dark:text-gray-300'}`}>{description}</p>
     </div>
   );
 }, (prev, next) => {
@@ -105,15 +105,15 @@ export const BlockerFeed = React.memo(({ blockers, resolveBlocker }) => {
   }, [blockers]);
 
   return (
-    <div className="bg-gray-50/50 rounded-xl p-4 h-full flex flex-col gap-1 overflow-hidden">
+    <div className="bg-gray-50/50 dark:bg-gray-900/50 rounded-xl p-4 h-full flex flex-col gap-1 overflow-hidden transition-colors duration-300">
       <div className="flex justify-between items-center mb-2 shrink-0">
-        <h3 className="font-semibold text-gray-700 text-sm">
+        <h3 className="font-semibold text-gray-700 dark:text-gray-200 text-sm transition-colors duration-300">
           Blockers Feed
         </h3>
         <button
           onClick={handleExportCSV}
           disabled={!blockers || blockers.length === 0}
-          className="text-xs font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 shadow-sm"
+          className="text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 px-2.5 py-1 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 shadow-sm"
         >
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
           Export CSV
@@ -121,18 +121,18 @@ export const BlockerFeed = React.memo(({ blockers, resolveBlocker }) => {
       </div>
 
       {!blockers || blockers.length === 0 ? (
-        <div className="p-8 text-center text-gray-500 text-sm border-2 border-dashed border-gray-200 rounded-xl bg-white mt-2">
+        <div className="p-8 text-center text-gray-500 dark:text-gray-400 text-sm border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 mt-2 transition-colors duration-300">
           No blockers reported — great meeting!
         </div>
       ) : (
         <>
           {activeBlockers.length === 0 ? (
-            <div className="p-4 text-center text-gray-500 text-sm">
+            <div className="p-4 text-center text-gray-500 dark:text-gray-400 text-sm transition-colors duration-300">
               All active blockers have been resolved!
             </div>
           ) : (
             <div className="overflow-y-auto pr-1 pb-2 flex-1 min-h-0">
-              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 mt-1">Active ({activeBlockers.length})</div>
+              <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3 mt-1 transition-colors duration-300">Active ({activeBlockers.length})</div>
               {activeBlockers.map(b => (
                 <BlockerItem
                   key={b.blockerId}
@@ -144,10 +144,10 @@ export const BlockerFeed = React.memo(({ blockers, resolveBlocker }) => {
           )}
 
           {resolvedBlockers.length > 0 && (
-            <div className="mt-4 border-t border-gray-200 pt-3 flex flex-col min-h-0">
+            <div className="mt-4 border-t border-gray-200 dark:border-gray-700 pt-3 flex flex-col min-h-0 transition-colors duration-300">
               <button 
                 onClick={() => setShowResolved(!showResolved)}
-                className="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-800 transition-colors w-full text-left shrink-0"
+                className="flex items-center gap-2 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors w-full text-left shrink-0"
               >
                 <svg className={`w-4 h-4 transform transition-transform ${showResolved ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
                 Resolved Blockers ({resolvedBlockers.length})
