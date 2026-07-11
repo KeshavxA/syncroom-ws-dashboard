@@ -96,8 +96,8 @@ export const MeetingCard = React.memo(({ meeting, isSelected, onSelect, subscrib
         </span>
       </div>
       <div className="flex justify-between items-center text-xs text-gray-500 mt-4">
-        <div className="flex items-center gap-1 font-medium">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+        <div className={`flex items-center gap-1.5 font-bold text-[11px] px-2.5 py-1 rounded-full shadow-sm border ${participantCount > 0 ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-gray-50 text-gray-500 border-gray-200'}`}>
+          <svg className="w-3.5 h-3.5 opacity-75" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
           {participantCount || 0}
         </div>
         <div className="font-medium">
