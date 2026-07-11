@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 
 const BlockerItem = React.memo(({ blocker, resolveBlocker }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -77,50 +77,63 @@ export const BlockerFeed = React.memo(({ blockers, resolveBlocker }) => {
     return { activeBlockers: active, resolvedBlockers: resolved };
   }, [blockers]);
 
-  if (!blockers || blockers.length === 0) {
-    return (
-      <div className="p-8 text-center text-gray-500 text-sm border-2 border-dashed border-gray-200 rounded-xl bg-gray-50/50">
-        No blockers reported — great meeting!
-      </div>
-    );
-  }
+  const handleExportCSV = useCallback(() => {
+    if (!blockers || blockers.length === 0) return;
+
+    const headers = ['ID', 'Reported By', 'Severity', 'Status', 'Description'];
+    const rows = blockers.map(b => [
+      b.blockerId,
+      b.reportedBy,
+      b.severity,
+      b.isResolved ? 'Resolved' : 'Active',
+      `"${(b.description || '').replace(/"/g, '""')}"`
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(r => r.join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `blockers_export_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }, [blockers]);
 
   return (
     <div className="bg-gray-50/50 rounded-xl p-4 h-full flex flex-col gap-1 overflow-hidden">
-      {activeBlockers.length === 0 ? (
-        <div className="p-4 text-center text-gray-500 text-sm">
-          All active blockers have been resolved!
+      <div className="flex justify-between items-center mb-2 shrink-0">
+        <h3 className="font-semibold text-gray-700 text-sm">
+          Blockers Feed
+        </h3>
+        <button
+          onClick={handleExportCSV}
+          disabled={!blockers || blockers.length === 0}
+          className="text-xs font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 shadow-sm"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          Export CSV
+        </button>
+      </div>
+
+      {!blockers || blockers.length === 0 ? (
+        <div className="p-8 text-center text-gray-500 text-sm border-2 border-dashed border-gray-200 rounded-xl bg-white mt-2">
+          No blockers reported — great meeting!
         </div>
       ) : (
         <>
-          <h3 className="font-semibold text-gray-700 text-sm mb-2 shrink-0">
-            Active Blockers ({activeBlockers.length})
-          </h3>
-          <div className="overflow-y-auto pr-1 pb-2 flex-1 min-h-0">
-            {activeBlockers.map(b => (
-              <BlockerItem
-                key={b.blockerId}
-                blocker={b}
-                resolveBlocker={resolveBlocker}
-              />
-            ))}
-          </div>
-        </>
-      )}
-
-      {resolvedBlockers.length > 0 && (
-        <div className="mt-4 border-t border-gray-200 pt-3 flex flex-col min-h-0">
-          <button 
-            onClick={() => setShowResolved(!showResolved)}
-            className="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-800 transition-colors w-full text-left shrink-0"
-          >
-            <svg className={`w-4 h-4 transform transition-transform ${showResolved ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
-            Resolved Blockers ({resolvedBlockers.length})
-          </button>
-          
-          {showResolved && (
-            <div className="mt-3 overflow-y-auto pr-1 flex-1 min-h-0">
-              {resolvedBlockers.map(b => (
+          {activeBlockers.length === 0 ? (
+            <div className="p-4 text-center text-gray-500 text-sm">
+              All active blockers have been resolved!
+            </div>
+          ) : (
+            <div className="overflow-y-auto pr-1 pb-2 flex-1 min-h-0">
+              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 mt-1">Active ({activeBlockers.length})</div>
+              {activeBlockers.map(b => (
                 <BlockerItem
                   key={b.blockerId}
                   blocker={b}
@@ -129,7 +142,31 @@ export const BlockerFeed = React.memo(({ blockers, resolveBlocker }) => {
               ))}
             </div>
           )}
-        </div>
+
+          {resolvedBlockers.length > 0 && (
+            <div className="mt-4 border-t border-gray-200 pt-3 flex flex-col min-h-0">
+              <button 
+                onClick={() => setShowResolved(!showResolved)}
+                className="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-800 transition-colors w-full text-left shrink-0"
+              >
+                <svg className={`w-4 h-4 transform transition-transform ${showResolved ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+                Resolved Blockers ({resolvedBlockers.length})
+              </button>
+              
+              {showResolved && (
+                <div className="mt-3 overflow-y-auto pr-1 flex-1 min-h-0">
+                  {resolvedBlockers.map(b => (
+                    <BlockerItem
+                      key={b.blockerId}
+                      blocker={b}
+                      resolveBlocker={resolveBlocker}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
