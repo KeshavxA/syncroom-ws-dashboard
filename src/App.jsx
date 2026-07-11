@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Toaster } from 'react-hot-toast';
 import { useWebSocket } from './hooks/useWebSocket';
 import { useParticipants } from './hooks/useParticipants';
 import { useBlockers } from './hooks/useBlockers';
@@ -35,6 +36,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans text-gray-900">
+      <Toaster position="bottom-right" toastOptions={{ duration: 3000 }} />
       <ConnectionBanner status={status} />
 
       <div className="flex max-w-7xl mx-auto pt-8 px-4 gap-6 h-screen pb-6">

@@ -1,4 +1,5 @@
 import { useReducer, useEffect, useMemo, useRef } from 'react';
+import toast from 'react-hot-toast';
 import { parseParticipantUpdate } from '../utils/messageParser';
 
 function participantsReducer(state, action) {
@@ -22,7 +23,12 @@ function participantsReducer(state, action) {
 
 export function useParticipants({ subscribe, meetingId }) {
   const [participants, dispatch] = useReducer(participantsReducer, new Map());
+  const participantsRef = useRef(participants);
   const isMounted = useRef(true);
+
+  useEffect(() => {
+    participantsRef.current = participants;
+  }, [participants]);
 
   useEffect(() => {
     isMounted.current = true;
@@ -34,6 +40,20 @@ export function useParticipants({ subscribe, meetingId }) {
 
       const update = parseParticipantUpdate(rawMsg);
       if (!update) return;
+
+      const prev = participantsRef.current.get(update.userId);
+      const prevStatus = prev ? prev.status : null;
+
+      if (update.status === 'joined' && prevStatus !== 'joined') {
+        toast.success(`${update.name} joined the meeting`, {
+          id: `${update.userId}-joined`,
+        });
+      } else if (update.status === 'left' && prevStatus !== 'left' && prev) {
+        toast(`${update.name} left the meeting`, {
+          icon: '👋',
+          id: `${update.userId}-left`,
+        });
+      }
 
       if (update.status === 'left') {
         dispatch({ type: 'REMOVE', payload: update });
@@ -48,7 +68,7 @@ export function useParticipants({ subscribe, meetingId }) {
       dispatch({ type: 'RESET' });
     };
 
-  }, [subscribe]);
+  }, [subscribe, meetingId]);
 
   return useMemo(() => Array.from(participants.values()), [participants]);
 }
