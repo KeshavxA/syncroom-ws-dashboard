@@ -8,6 +8,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { ParticipantList } from './components/ParticipantList';
 import { BlockerFeed } from './components/BlockerFeed';
 import { MeetingCard } from './components/MeetingCard';
+import { MeetingProgressBar } from './components/MeetingProgressBar';
 
 const INITIAL_MEETINGS = [
   { meetingId: 'm-1', title: 'Daily Standup', status: 'live', participantCount: 0, startTime: new Date().toISOString() },
@@ -101,6 +102,7 @@ export default function App() {
                   </button>
                 </div>
               </div>
+              <MeetingProgressBar startTime={selectedMeeting.startTime} durationMinutes={15} />
               <div className="flex-1 flex p-6 gap-6 overflow-hidden bg-gray-50/30 dark:bg-black/20 transition-colors duration-300">
                 <div className="w-1/2 flex flex-col h-full overflow-hidden">
                   <ParticipantList participants={participants} />
