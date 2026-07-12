@@ -98,7 +98,8 @@ setInterval(() => {
     status: status,
     meetingId: 'm-1',
     joinedAt: new Date().toISOString(),
-    hasHandRaised: Math.random() > 0.8
+    hasHandRaised: Math.random() > 0.8,
+    isSpeaking: Math.random() > 0.7
   });
 }, 2000);
 

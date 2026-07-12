@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 
 const ParticipantRow = React.memo(({ participant }) => {
-  const { name, status, joinedAt } = participant;
+  const { name, status, joinedAt, isSpeaking } = participant;
 
   const initials = name ? name.charAt(0).toUpperCase() : '?';
   const isJoined = status === 'joined';
@@ -16,7 +16,7 @@ const ParticipantRow = React.memo(({ participant }) => {
   return (
     <div className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-colors duration-300">
       <div className="relative">
-        <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 rounded-full flex items-center justify-center font-bold text-lg transition-colors duration-300">
+        <div className={`w-10 h-10 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 rounded-full flex items-center justify-center font-bold text-lg transition-all duration-300 ${isSpeaking ? 'ring-2 ring-green-400 dark:ring-green-500 shadow-[0_0_12px_rgba(74,222,128,0.6)]' : ''}`}>
           {initials}
         </div>
         <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white dark:border-gray-800 transition-colors duration-300 ${isJoined ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
@@ -41,7 +41,8 @@ const ParticipantRow = React.memo(({ participant }) => {
 
   return prev.participant.status === next.participant.status &&
     prev.participant.userId === next.participant.userId &&
-    prev.participant.hasHandRaised === next.participant.hasHandRaised;
+    prev.participant.hasHandRaised === next.participant.hasHandRaised &&
+    prev.participant.isSpeaking === next.participant.isSpeaking;
 });
 
 ParticipantRow.displayName = 'ParticipantRow';
