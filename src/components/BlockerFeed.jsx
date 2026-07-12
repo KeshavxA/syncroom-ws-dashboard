@@ -52,8 +52,20 @@ const BlockerItem = React.memo(({ blocker, resolveBlocker }) => {
 
 BlockerItem.displayName = 'BlockerItem';
 
-export const BlockerFeed = React.memo(({ blockers, resolveBlocker }) => {
+export const BlockerFeed = React.memo(({ blockers, resolveBlocker, reportBlocker }) => {
   const [showResolved, setShowResolved] = useState(false);
+  const [isReporting, setIsReporting] = useState(false);
+  const [reportDesc, setReportDesc] = useState('');
+  const [reportSeverity, setReportSeverity] = useState('medium');
+
+  const handleSubmitReport = (e) => {
+    e.preventDefault();
+    if (!reportDesc.trim()) return;
+    if (reportBlocker) reportBlocker(reportDesc.trim(), reportSeverity);
+    setReportDesc('');
+    setReportSeverity('medium');
+    setIsReporting(false);
+  };
 
   const { activeBlockers, resolvedBlockers } = useMemo(() => {
     if (!blockers) return { activeBlockers: [], resolvedBlockers: [] };
@@ -110,15 +122,64 @@ export const BlockerFeed = React.memo(({ blockers, resolveBlocker }) => {
         <h3 className="font-semibold text-gray-700 dark:text-gray-200 text-sm transition-colors duration-300">
           Blockers Feed
         </h3>
-        <button
-          onClick={handleExportCSV}
-          disabled={!blockers || blockers.length === 0}
-          className="text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 px-2.5 py-1 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 shadow-sm"
-        >
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-          Export CSV
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setIsReporting(!isReporting)}
+            className="text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 px-2.5 py-1 rounded-md transition-colors shadow-sm flex items-center gap-1"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+            Report Blocker
+          </button>
+          <button
+            onClick={handleExportCSV}
+            disabled={!blockers || blockers.length === 0}
+            className="text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 px-2.5 py-1 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 shadow-sm"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+            Export CSV
+          </button>
+        </div>
       </div>
+
+      {isReporting && (
+        <form onSubmit={handleSubmitReport} className="mb-3 p-3 bg-white dark:bg-gray-800 border border-indigo-200 dark:border-indigo-800 rounded-lg shadow-sm shrink-0 transition-colors duration-300">
+          <textarea
+            autoFocus
+            value={reportDesc}
+            onChange={(e) => setReportDesc(e.target.value)}
+            placeholder="What's blocking you?"
+            className="w-full text-sm bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-md p-2 mb-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-gray-900 dark:text-gray-100 transition-colors duration-300 placeholder-gray-500 dark:placeholder-gray-400"
+            rows={2}
+          />
+          <div className="flex justify-between items-center">
+            <select
+              value={reportSeverity}
+              onChange={(e) => setReportSeverity(e.target.value)}
+              className="text-xs border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-md px-2 py-1 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-colors duration-300 cursor-pointer"
+            >
+              <option value="low">Low Severity</option>
+              <option value="medium">Medium Severity</option>
+              <option value="high">High Severity</option>
+            </select>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setIsReporting(false)}
+                className="text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 px-3 py-1 transition-colors duration-300"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={!reportDesc.trim()}
+                className="text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 dark:disabled:bg-indigo-800 px-3 py-1 rounded-md transition-colors duration-300"
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+        </form>
+      )}
 
       {!blockers || blockers.length === 0 ? (
         <div className="p-8 text-center text-gray-500 dark:text-gray-400 text-sm border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 mt-2 transition-colors duration-300">
