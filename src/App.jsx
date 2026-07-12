@@ -18,6 +18,7 @@ const INITIAL_MEETINGS = [
 export default function App() {
   const { status, subscribe, publish } = useWebSocket();
   const [selectedMeetingId, setSelectedMeetingId] = useState(INITIAL_MEETINGS[0].meetingId);
+  const [meetingSearch, setMeetingSearch] = useState('');
 
   const selectedMeeting = INITIAL_MEETINGS.find(m => m.meetingId === selectedMeetingId) || INITIAL_MEETINGS[0];
 
@@ -34,23 +35,46 @@ export default function App() {
     });
   };
 
+  const filteredMeetings = INITIAL_MEETINGS.filter(m => {
+    if (!meetingSearch.trim()) return true;
+    const query = meetingSearch.toLowerCase();
+    return m.title.toLowerCase().includes(query) || m.status.toLowerCase().includes(query);
+  });
+
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 font-sans text-gray-900 dark:text-gray-100 transition-colors duration-300">
       <Toaster position="bottom-right" toastOptions={{ duration: 3000 }} />
       <ConnectionBanner status={status} />
 
       <div className="flex max-w-7xl mx-auto pt-8 px-4 gap-6 h-screen pb-6">
-        <div className="w-72 flex-shrink-0 flex flex-col overflow-y-auto pr-2 pb-16">
-          <h2 className="font-bold text-xl mb-4 text-gray-800 dark:text-gray-200">Meetings</h2>
-          {INITIAL_MEETINGS.map(meeting => (
-            <MeetingCard
-              key={meeting.meetingId}
-              meeting={meeting}
-              isSelected={meeting.meetingId === selectedMeetingId}
-              onSelect={setSelectedMeetingId}
-              subscribe={subscribe}
+        <div className="w-72 flex-shrink-0 flex flex-col overflow-hidden pr-2 pb-4">
+          <h2 className="font-bold text-xl mb-3 text-gray-800 dark:text-gray-200 shrink-0">Meetings</h2>
+          <div className="mb-4 shrink-0">
+            <input
+              type="text"
+              placeholder="Search meetings..."
+              value={meetingSearch}
+              onChange={(e) => setMeetingSearch(e.target.value)}
+              className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 placeholder-gray-500 dark:placeholder-gray-400 transition-colors duration-300 shadow-sm"
             />
-          ))}
+          </div>
+          <div className="overflow-y-auto flex-1 pr-1 pb-16">
+            {filteredMeetings.length === 0 ? (
+              <div className="text-center text-sm text-gray-500 dark:text-gray-400 mt-4 p-4 border border-dashed border-gray-200 dark:border-gray-700 rounded-xl">
+                No meetings found.
+              </div>
+            ) : (
+              filteredMeetings.map(meeting => (
+                <MeetingCard
+                  key={meeting.meetingId}
+                  meeting={meeting}
+                  isSelected={meeting.meetingId === selectedMeetingId}
+                  onSelect={setSelectedMeetingId}
+                  subscribe={subscribe}
+                />
+              ))
+            )}
+          </div>
         </div>
 
         <div className="flex-1 flex flex-col gap-6 overflow-hidden pb-12">
