@@ -92,6 +92,9 @@ setInterval(() => {
   const name = names[Math.floor(Math.random() * names.length)];
   const status = statuses[Math.floor(Math.random() * statuses.length)];
 
+  const roles = ['Engineering', 'Design', 'Product', 'Marketing'];
+  const role = roles[Math.floor(Math.random() * roles.length)];
+
   broadcastMessage('/topic/meetings/m-1/participants', {
     userId: `u-${name.toLowerCase()}`,
     name: name,
@@ -99,7 +102,8 @@ setInterval(() => {
     meetingId: 'm-1',
     joinedAt: new Date().toISOString(),
     hasHandRaised: Math.random() > 0.8,
-    isSpeaking: Math.random() > 0.7
+    isSpeaking: Math.random() > 0.7,
+    role: role
   });
 }, 2000);
 

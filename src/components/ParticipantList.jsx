@@ -1,7 +1,14 @@
 import React, { useMemo, useState } from 'react';
 
 const ParticipantRow = React.memo(({ participant }) => {
-  const { name, status, joinedAt, isSpeaking } = participant;
+  const { name, status, joinedAt, isSpeaking, role } = participant;
+
+  const roleColors = {
+    Engineering: 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 border border-blue-200 dark:border-blue-800',
+    Design: 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300 border border-purple-200 dark:border-purple-800',
+    Product: 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300 border border-orange-200 dark:border-orange-800',
+    Marketing: 'bg-pink-100 text-pink-800 dark:bg-pink-900/40 dark:text-pink-300 border border-pink-200 dark:border-pink-800',
+  };
 
   const initials = name ? name.charAt(0).toUpperCase() : '?';
   const isJoined = status === 'joined';
@@ -24,9 +31,16 @@ const ParticipantRow = React.memo(({ participant }) => {
 
       <div className="flex-1 min-w-0 flex justify-between items-center pr-2">
         <div className="min-w-0">
-          <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate transition-colors duration-300">
-            {name}
-          </p>
+          <div className="flex items-center gap-2 mb-0.5">
+            <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate transition-colors duration-300">
+              {name}
+            </p>
+            {role && (
+              <span className={`text-[9px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded shadow-sm ${roleColors[role] || 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-700'}`}>
+                {role}
+              </span>
+            )}
+          </div>
           <p className="text-xs text-gray-500 dark:text-gray-400 truncate capitalize transition-colors duration-300">
             {status} {timeText && `• ${timeText}`}
           </p>
@@ -42,7 +56,8 @@ const ParticipantRow = React.memo(({ participant }) => {
   return prev.participant.status === next.participant.status &&
     prev.participant.userId === next.participant.userId &&
     prev.participant.hasHandRaised === next.participant.hasHandRaised &&
-    prev.participant.isSpeaking === next.participant.isSpeaking;
+    prev.participant.isSpeaking === next.participant.isSpeaking &&
+    prev.participant.role === next.participant.role;
 });
 
 ParticipantRow.displayName = 'ParticipantRow';
