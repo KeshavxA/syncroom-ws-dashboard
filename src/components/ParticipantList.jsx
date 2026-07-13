@@ -21,7 +21,7 @@ const ParticipantRow = React.memo(({ participant }) => {
   }, [joinedAt]);
 
   return (
-    <div className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-colors duration-300">
+    <div className={`flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-all duration-300 ${status === 'idle' ? 'opacity-50 grayscale' : ''}`}>
       <div className="relative">
         <div className={`w-10 h-10 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 rounded-full flex items-center justify-center font-bold text-lg transition-all duration-300 ${isSpeaking ? 'ring-2 ring-green-400 dark:ring-green-500 shadow-[0_0_12px_rgba(74,222,128,0.6)]' : ''}`}>
           {initials}
