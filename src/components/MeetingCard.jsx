@@ -46,7 +46,17 @@ const LiveTimer = React.memo(({ startTime }) => {
 
 export const MeetingCard = React.memo(({ meeting, isSelected, onSelect, subscribe }) => {
   const [localMeeting, setLocalMeeting] = useState(meeting);
+  const [isPulsing, setIsPulsing] = useState(false);
   const isMounted = useRef(true);
+
+  useEffect(() => {
+    if (!isMounted.current) return;
+    setIsPulsing(true);
+    const timer = setTimeout(() => {
+      if (isMounted.current) setIsPulsing(false);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [localMeeting.participantCount]);
 
   useEffect(() => {
     setLocalMeeting(meeting);
@@ -96,7 +106,7 @@ export const MeetingCard = React.memo(({ meeting, isSelected, onSelect, subscrib
         </span>
       </div>
       <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 mt-4">
-        <div className={`flex items-center gap-1.5 font-bold text-[11px] px-2.5 py-1 rounded-full shadow-sm border transition-colors duration-300 ${participantCount > 0 ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-700/50' : 'bg-gray-50 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700'}`}>
+        <div className={`flex items-center gap-1.5 font-bold text-[11px] px-2.5 py-1 rounded-full shadow-sm border transition-all duration-300 ${isPulsing ? 'scale-110 bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700 shadow-md ring-2 ring-green-400/50' : participantCount > 0 ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-700/50' : 'bg-gray-50 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700'}`}>
           <svg className="w-3.5 h-3.5 opacity-75" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
           {participantCount || 0}
         </div>
