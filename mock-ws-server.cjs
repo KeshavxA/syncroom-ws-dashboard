@@ -57,6 +57,8 @@ c
 
             if (dest === '/app/blockers') {
               broadcastMessage('/topic/meetings/m-1/blockers', bodyObj);
+            } else if (dest === '/app/participants/hand') {
+              broadcastMessage('/topic/meetings/m-1/participants', bodyObj);
             }
           } catch (e) {
 

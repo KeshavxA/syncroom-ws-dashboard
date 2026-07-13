@@ -51,6 +51,20 @@ export default function App() {
     });
   };
 
+  const handleRaiseHand = () => {
+    publish('/app/participants/hand', {
+      userId: 'u-you',
+      name: 'You (Local)',
+      status: 'joined',
+      meetingId: selectedMeetingId,
+      joinedAt: new Date().toISOString(),
+      hasHandRaised: true,
+      isSpeaking: false,
+      role: 'Engineering'
+    });
+    toast.success('Hand raised!');
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 font-sans text-gray-900 dark:text-gray-100 transition-colors duration-300">
       <Toaster position="bottom-right" toastOptions={{ duration: 3000 }} />
@@ -100,9 +114,16 @@ export default function App() {
                     </div>
                   )}
                   <button
+                    onClick={handleRaiseHand}
+                    title="Raise Hand"
+                    className="p-1.5 text-gray-500 hover:text-yellow-600 hover:bg-yellow-50 dark:text-gray-400 dark:hover:text-yellow-400 dark:hover:bg-yellow-900/40 rounded-md transition-colors text-sm flex items-center justify-center w-8 h-8"
+                  >
+                    ✋
+                  </button>
+                  <button
                     onClick={handleCopyLink}
                     title="Copy Meeting Link"
-                    className="p-1.5 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 dark:text-gray-400 dark:hover:text-indigo-400 dark:hover:bg-indigo-900/40 rounded-md transition-colors"
+                    className="p-1.5 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 dark:text-gray-400 dark:hover:text-indigo-400 dark:hover:bg-indigo-900/40 rounded-md transition-colors w-8 h-8 flex items-center justify-center"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
                   </button>
