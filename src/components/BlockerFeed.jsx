@@ -54,6 +54,7 @@ BlockerItem.displayName = 'BlockerItem';
 
 export const BlockerFeed = React.memo(({ blockers, resolveBlocker, reportBlocker }) => {
   const [showResolved, setShowResolved] = useState(false);
+  const [urgentOnly, setUrgentOnly] = useState(false);
   const [isReporting, setIsReporting] = useState(false);
   const [reportDesc, setReportDesc] = useState('');
   const [reportSeverity, setReportSeverity] = useState('medium');
@@ -74,6 +75,8 @@ export const BlockerFeed = React.memo(({ blockers, resolveBlocker, reportBlocker
     const resolved = [];
     
     blockers.forEach(b => {
+      if (urgentOnly && b.severity !== 'high') return;
+
       if (b.isResolved) resolved.push(b);
       else active.push(b);
     });
@@ -123,6 +126,18 @@ export const BlockerFeed = React.memo(({ blockers, resolveBlocker, reportBlocker
           Blockers Feed
         </h3>
         <div className="flex gap-2">
+          <button
+            onClick={() => setUrgentOnly(!urgentOnly)}
+            className={`text-xs font-medium px-2.5 py-1 rounded-md transition-colors shadow-sm flex items-center gap-1 border ${
+              urgentOnly 
+                ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 border-red-200 dark:border-red-800'
+                : 'text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+            }`}
+            title="Filter to high severity only"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            Urgent Only
+          </button>
           <button
             onClick={() => setIsReporting(!isReporting)}
             className="text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 px-2.5 py-1 rounded-md transition-colors shadow-sm flex items-center gap-1"
