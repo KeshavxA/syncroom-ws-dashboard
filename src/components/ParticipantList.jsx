@@ -67,13 +67,28 @@ export const ParticipantList = React.memo(({ participants }) => {
 
   const filteredParticipants = useMemo(() => {
     if (!participants) return [];
-    if (!searchQuery.trim()) return participants;
     
-    const query = searchQuery.toLowerCase();
-    return participants.filter(p => {
-      const nameMatch = p.name?.toLowerCase().includes(query);
-      const roleMatch = p.role?.toLowerCase().includes(query);
-      return nameMatch || roleMatch;
+    let filtered = participants;
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = participants.filter(p => {
+        const nameMatch = p.name?.toLowerCase().includes(query);
+        const roleMatch = p.role?.toLowerCase().includes(query);
+        return nameMatch || roleMatch;
+      });
+    }
+
+    return [...filtered].sort((a, b) => {
+      // 1. Actively speaking
+      if (a.isSpeaking && !b.isSpeaking) return -1;
+      if (!a.isSpeaking && b.isSpeaking) return 1;
+      
+      // 2. Hand raised
+      if (a.hasHandRaised && !b.hasHandRaised) return -1;
+      if (!a.hasHandRaised && b.hasHandRaised) return 1;
+
+      // 3. Alphabetical fallback
+      return (a.name || '').localeCompare(b.name || '');
     });
   }, [participants, searchQuery]);
 
