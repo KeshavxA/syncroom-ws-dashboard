@@ -93,6 +93,12 @@ export default function App() {
               <div className="p-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 flex justify-between items-center shrink-0 transition-colors duration-300">
                 <div className="flex items-center gap-3">
                   <h1 className="font-bold text-lg text-gray-800 dark:text-gray-100">{selectedMeeting.title} — Dashboard</h1>
+                  {selectedMeeting.status === 'live' && (
+                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-800/50" title="Recording Active">
+                      <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                      <span className="text-[10px] font-bold text-red-700 dark:text-red-400 tracking-wider">REC</span>
+                    </div>
+                  )}
                   <button
                     onClick={handleCopyLink}
                     title="Copy Meeting Link"
